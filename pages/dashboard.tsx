@@ -31,11 +31,9 @@ export default function Dashboard() {
         setAccountGroupId(groupId);
         setSelectedUserId(isAdmin ? 'all' : user.uid);
 
-        if (isAdmin) {
-          const usersSnap = await getDocs(collection(db, 'users'));
-          const allUsers = usersSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
-          setUsers(allUsers);
-        }
+        const usersSnap = await getDocs(collection(db, 'users'));
+        const allUsers = usersSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        setUsers(allUsers);
       }
     });
     return () => unsubscribe();
@@ -103,12 +101,12 @@ export default function Dashboard() {
 
   const spender = users.map((u) => {
     const total = expenses.filter((e) => e.userId === u.id).reduce((sum, e) => sum + e.amount, 0);
-    return { name: u.email, total };
+    return { name: `${u.name || ''} ${u.surname || ''}`.trim(), total };
   }).sort((a, b) => b.total - a.total)[0];
 
   const earner = users.map((u) => {
     const total = incomes.filter((i) => i.userId === u.id).reduce((sum, i) => sum + i.amount, 0);
-    return { name: u.email, total };
+    return { name: `${u.name || ''} ${u.surname || ''}`.trim(), total };
   }).sort((a, b) => b.total - a.total)[0];
 
   return (
@@ -120,7 +118,7 @@ export default function Dashboard() {
             value={selectedUserId}
             onChange={setSelectedUserId}
             style={{ width: 300 }}
-            options={[{ label: 'Main Dashboard (All)', value: 'all' }, ...users.map((u) => ({ label: u.email, value: u.id }))]}
+            options={[{ label: 'Main Dashboard (All)', value: 'all' }, ...users.map((u) => ({ label: `${u.name || ''} ${u.surname || ''}`.trim(), value: u.id }))]}
           />
         </div>
       )}
